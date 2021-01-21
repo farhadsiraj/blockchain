@@ -7,6 +7,7 @@ class Block {
     this.data = data;
     this.previousHash = previousHash;
     this.hash = this.calculateHash();
+    this.nonce = 0;
   }
 
   calculateHash() {
@@ -14,14 +15,26 @@ class Block {
       this.index +
         this.previousHash +
         this.timestamp +
-        JSON.stringify(this.data)
+        JSON.stringify(this.data) +
+        this.nonce
     ).toString();
+  }
+
+  mineBlock(difficulty) {
+    while (
+      this.hash.substring(0, difficulty) !== Array(difficulty + 1).join('0')
+    ) {
+      this.nonce++;
+      this.hash = this.calculateHash();
+    }
+    console.log('Block mined: ' + this.hash);
   }
 }
 
 class Blockchain {
   constructor() {
     this.chain = [this.createGenesisBlock()];
+    this.difficulty = 4;
   }
   createGenesisBlock() {
     return new Block(0, '01/21/2021', 'This is Data', '0');
@@ -33,7 +46,8 @@ class Blockchain {
 
   addBlock(newBlock) {
     newBlock.previousHash = this.getLatestBlock().hash;
-    newBlock.hash = newBlock.calculateHash();
+    // newBlock.hash = newBlock.calculateHash();
+    newBlock.mineBlock(this.difficulty);
     this.chain.push(newBlock);
   }
 
@@ -55,14 +69,18 @@ class Blockchain {
 }
 
 let farhadCoin = new Blockchain();
+
+console.log('Mining block 1...');
 farhadCoin.addBlock(new Block(1, '01/22/2021', { amount: 6 }));
-farhadCoin.addBlock(new Block(1, '01/23/2021', { amount: 45 }));
 
-console.log('Is blockchain valid? ' + farhadCoin.isChainValid());
+console.log('Mining block 2...');
+farhadCoin.addBlock(new Block(2, '01/23/2021', { amount: 45 }));
 
-farhadCoin.chain[1].data = { amount: 100 };
-farhadCoin.chain[1].hash = farhadCoin.chain[1].calculateHash();
+// console.log('Is blockchain valid? ' + farhadCoin.isChainValid());
 
-console.log('Is blockchain valid? ' + farhadCoin.isChainValid());
+// farhadCoin.chain[1].data = { amount: 100 };
+// farhadCoin.chain[1].hash = farhadCoin.chain[1].calculateHash();
+
+// console.log('Is blockchain valid? ' + farhadCoin.isChainValid());
 
 // console.log(JSON.stringify(farhadCoin, null, 4));
