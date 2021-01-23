@@ -24,3 +24,4 @@ console.log(
 // farhadCoin.chain[1].transactions[0].amount = 1;
 
 console.log('Is chain valid?', farhadCoin.isChainValid());
+console.log(farhadCoin.chain[0]);
