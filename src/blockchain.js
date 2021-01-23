@@ -1,16 +1,21 @@
 const SHA256 = require('crypto-js/sha256');
 const EC = require('elliptic').ec;
 const ec = new EC('secp256k1');
+const crypto = require('crypto');
 
 class Transaction {
   constructor(fromAddress, toAddress, amount) {
     this.fromAddress = fromAddress;
     this.toAddress = toAddress;
     this.amount = amount;
+    this.timestamp = Date.now();
   }
 
   calculateHash() {
-    return SHA256(this.fromAddress + this.toAddress + this.amount).toString();
+    return crypto
+      .createHash('sha256')
+      .update(this.fromAddress + this.toAddress + this.amount + this.timestamp)
+      .digest('hex');
   }
 
   signTransaction(signingKey) {
@@ -44,12 +49,15 @@ class Block {
   }
 
   calculateHash() {
-    return SHA256(
-      this.previousHash +
-        this.timestamp +
-        JSON.stringify(this.data) +
-        this.nonce
-    ).toString();
+    return crypto
+      .createHash('sha256')
+      .update(
+        this.previousHash +
+          this.timestamp +
+          JSON.stringify(this.transactions) +
+          this.nonce
+      )
+      .digest('hex');
   }
 
   mineBlock(difficulty) {
@@ -80,7 +88,7 @@ class Blockchain {
     this.miningReward = 100;
   }
   createGenesisBlock() {
-    return new Block('01/21/2021', 'This is Data', '0');
+    return new Block(Date.parse('2017-01-01'), [], '0');
   }
 
   getLatestBlock() {
@@ -113,11 +121,24 @@ class Blockchain {
       throw new Error('Transaction must include from and to address');
     }
 
+    // Verify the transactiion
     if (!transaction.isValid()) {
       throw new Error('Cannot add invalid transaction to chain');
     }
 
+    if (transaction.amount <= 0) {
+      throw new Error('Transaction amount should be higher than 0');
+    }
+
+    // Making sure that the amount sent is not greater than existing balance
+    if (
+      this.getBalanceOfAddress(transaction.fromAddress) < transaction.amount
+    ) {
+      throw new Error('Not enough balance');
+    }
+
     this.pendingTransactions.push(transaction);
+    console.log('transaction added: %s', transaction);
   }
 
   getBalanceOfAddress(address) {
@@ -137,18 +158,33 @@ class Blockchain {
     return balance;
   }
 
-  // addBlock(newBlock) {
-  //   newBlock.previousHash = this.getLatestBlock().hash;
-  //   // newBlock.hash = newBlock.calculateHash();
-  //   newBlock.mineBlock(this.difficulty);
-  //   this.chain.push(newBlock);
-  // }
+  getAllTransactionsForWallet(address) {
+    const txs = [];
+
+    for (const block of this.chain) {
+      for (const tx of block.transactions) {
+        if (tx.fromAddress === address || tx.toAddress === address) {
+          txs.push(tx);
+        }
+      }
+    }
+
+    console.log('get transactions for wallet count: %s', txs.length);
+    return txs;
+  }
 
   isChainValid() {
+    // Check if the Genesis block hasn't been tampered with by comparing
+    // the output of createGenesisBlock with the first block on our chain
+    const realGenesis = JSON.stringify(this.createGenesisBlock());
+
+    if (realGenesis !== JSON.stringify(this.chain[0])) {
+      return false;
+    }
+
     //start at index one because index 0 is the genesis block with default data
     for (let i = 1; i < this.chain.length; i++) {
       const currentBlock = this.chain[i];
-      const previousBlock = this.chain[i - 1];
 
       if (!currentBlock.hasValidTransactions()) {
         return false;
@@ -157,10 +193,8 @@ class Blockchain {
       if (currentBlock.hash !== currentBlock.calculateHash()) {
         return false;
       }
-      if (currentBlock.previousHash !== previousBlock.hash) {
-        return false;
-      }
     }
+
     return true;
   }
 }
