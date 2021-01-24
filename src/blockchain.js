@@ -88,7 +88,7 @@ class Blockchain {
     this.miningReward = 100;
   }
   createGenesisBlock() {
-    return new Block(Date.parse('2017-01-01'), [], '0');
+    return new Block(Date.parse('2021-01-01'), [], '0');
   }
 
   getLatestBlock() {
@@ -131,11 +131,11 @@ class Blockchain {
     }
 
     // Making sure that the amount sent is not greater than existing balance
-    if (
-      this.getBalanceOfAddress(transaction.fromAddress) < transaction.amount
-    ) {
-      throw new Error('Not enough balance');
-    }
+    // if (
+    //   this.getBalanceOfAddress(transaction.fromAddress) < transaction.amount
+    // ) {
+    //   throw new Error('Not enough balance');
+    // }
 
     this.pendingTransactions.push(transaction);
     console.log('transaction added: %s', transaction);
