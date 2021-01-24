@@ -67,7 +67,7 @@ class Block {
       this.nonce++;
       this.hash = this.calculateHash();
     }
-    console.log('Block mined: ' + this.hash);
+    // console.log('Block mined: ' + this.hash);
   }
 
   hasValidTransactions() {
@@ -110,7 +110,7 @@ class Blockchain {
     );
     block.mineBlock(this.difficulty);
 
-    console.log('Block successfully mined!');
+    // console.log('Block successfully mined!');
     this.chain.push(block);
 
     this.pendingTransactions = [];
@@ -138,7 +138,7 @@ class Blockchain {
     // }
 
     this.pendingTransactions.push(transaction);
-    console.log('transaction added: %s', transaction);
+    // console.log('transaction added: %s', transaction);
   }
 
   getBalanceOfAddress(address) {
