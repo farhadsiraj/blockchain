@@ -3,25 +3,27 @@ const EC = require('elliptic').ec;
 const ec = new EC('secp256k1');
 
 const myKey = ec.keyFromPrivate(
-  'ac12424a60c36c1d50fb536d7fa6980be6bca902159c32319a994005f968f2a5'
+  'c7f6ae84cc88fa0d21b83a87f3758b7d40b9642c662854ece7e096b34e002f98'
 );
 const myWalletAddress = myKey.getPublic('hex');
 
 let farhadCoin = new Blockchain();
 
-const tx1 = new Transaction(myWalletAddress, 'address2', 10);
-tx1.signTransaction(myKey);
-farhadCoin.addTransaction(tx1);
+// const tx1 = new Transaction(myWalletAddress, 'address2', 10);
+// tx1.signTransaction(myKey);
+// farhadCoin.addTransaction(tx1);
 
-console.log('\n Starting the miner...');
-farhadCoin.minePendingTransactions(myWalletAddress);
+// console.log('\n Starting the miner...');
+// farhadCoin.minePendingTransactions(myWalletAddress);
 
-console.log(
-  '\nBalance of wallet is',
-  farhadCoin.getBalanceOfAddress(myWalletAddress)
-);
+// console.log(
+//   '\nBalance of wallet is',
+//   farhadCoin.getBalanceOfAddress(myWalletAddress)
+// );
 
-// farhadCoin.chain[1].transactions[0].amount = 1;
+// // farhadCoin.chain[1].transactions[0].amount = 1;
 
-console.log('Is chain valid?', farhadCoin.isChainValid());
-console.log(farhadCoin.chain[0]);
+// console.log('Is chain valid?', farhadCoin.isChainValid());
+// console.log(farhadCoin.chain[0]);
+
+console.log(farhadCoin.chain);
